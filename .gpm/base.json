@@ -1,0 +1,8 @@
+{
+    "base_path": "/var/projects/buzz/buzz-intern-server/geo/__services__/googlemap2/.gpm/base.json",
+    "gpm_path": "/var/projects/buzz/buzz-intern-server/geo/__services__/googlemap2/.gpm",
+    "name": "dj-googlemap",
+    "project_type": "module",
+    "repository_url": "https://github.com/px57/dj-googlemap.git",
+    "root_path": "/var/projects/buzz/buzz-intern-server/geo/__services__/googlemap2"
+}
