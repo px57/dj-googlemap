@@ -26,7 +26,7 @@ class Service(ServiceManager):
         """
         Autocomplete place error.
         """
-        print (self.res)
+        pass
 
     def get_reference_code(self, place_id):
         """
@@ -54,11 +54,17 @@ class Service(ServiceManager):
         place_details_url = "https://maps.googleapis.com/maps/api/place/details/json"
         place_params = {
             "place_id": self.get_code_id_reference_code(dbCity.reference_code),
-                "key": "VOTRE_CLE_API"  # Remplacez "VOTRE_CLE_API" par votre clé API réelle
+            "key": self.config.get('API_KEY')
         }
-        place_response = requests.get(place_details_url, params=place_params)
+        place_response = requests.get(
+            place_details_url, 
+            params=place_params
+        )
         place_data = place_response.json()
-        print (place_data)
+        dbCity.api_data = place_data 
+        dbCity.longitude = place_data['result']['geometry']['location']['lng']
+        dbCity.latitude = place_data['result']['geometry']['location']['lat']
+        dbCity.save()
 
     def __async_get_details(self, dbCity):
         """
@@ -101,7 +107,6 @@ class Service(ServiceManager):
         try:
             response = requests.get(endpoint, params=params)
             data = response.json()
-            print (data)
             if 'predictions' in data:
                 return data
             else:
@@ -128,20 +133,23 @@ class Service(ServiceManager):
             return []
         
         dbCities = Cities.objects.filter(query)
+        dbResultCities = []
         for city in city_list['predictions']:
             dbCity = dbCities.filter(
                 self.get_reference_Dbquery(city['place_id'])
             ).first()
             if dbCity is None:
-                pprint.pprint(city)
-                    # dbCity = Cities(
-                    #     reference_code=self.get_reference_code(city['place_id']),
-                    #     latitude=city['geometry']['location']['lat'],
-                    #     longitude=city['geometry']['location']['lng'],
-                    #     name=city['description'],
-                    #     country=country
-                    # )
-                    # dbCity.save()
+                dbCity = Cities(
+                        reference_code=self.get_reference_code(city['place_id']),
+                        name=city['description'],
+                        country=country[0]
+                )
+                dbCity.save()
+                self.__async_get_details(dbCity)
+
+            dbResultCities.append(dbCity)
+
+        return dbResultCities
         
     def find_city(
             self,
@@ -161,4 +169,4 @@ class Service(ServiceManager):
         )
         
         dbCities = self.__create_or_get_city_to_db(city_list, country)
-        return []
+        return dbCities
