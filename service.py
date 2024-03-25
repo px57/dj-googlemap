@@ -4,7 +4,7 @@ from django.db.models import Q
 
 import mailchimp_transactional as MailchimpTransactional
 
-from kernel.interfaces.service import ServiceManager
+from gpm.interfaces.service import ServiceManager
 
 from geo.models import Countries, Cities, CitiesRelated, CountriesRelated
 
